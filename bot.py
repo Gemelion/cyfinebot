@@ -7,21 +7,18 @@ from encryption import encrypt, decrypt
 from fines import check_fines
 import os
 import asyncio
+import sys
 
-# Настройки
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 DB_PATH = "db.sqlite3"
 
-# Состояния для ConversationHandler
 ID_NUMBER, CAR_NUMBER = range(2)
 
-# Включаем логирование
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
-# Инициализация базы данных
 def init_db():
     with sqlite3.connect(DB_PATH) as conn:
         conn.execute("""CREATE TABLE IF NOT EXISTS users (
@@ -32,7 +29,6 @@ def init_db():
             had_fines INTEGER DEFAULT 0
         )""")
 
-# /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "👋 Привет! Я бот, который поможет тебе отслеживать штрафы с камер на Кипре.\n\n"
@@ -41,14 +37,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Нажми /delete, чтобы удалить свои данные."
     )
 
-# /consent
 async def consent(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     with sqlite3.connect(DB_PATH) as conn:
         conn.execute("INSERT OR REPLACE INTO users (user_id, consent_given) VALUES (?, 1)", (user_id,))
     await update.message.reply_text("✅ Спасибо! Теперь введите команду /register, чтобы добавить свои данные.")
 
-# /register
 async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("🪪 Пожалуйста, введите номер удостоверения личности:")
     return ID_NUMBER
@@ -73,12 +67,10 @@ async def car_number(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("✅ Данные сохранены! Используйте /check чтобы проверить наличие штрафов.")
     return ConversationHandler.END
 
-# /cancel
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("❌ Действие отменено.", reply_markup=ReplyKeyboardRemove())
     return ConversationHandler.END
 
-# /check
 async def check(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     with sqlite3.connect(DB_PATH) as conn:
@@ -97,14 +89,12 @@ async def check(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("✅ Штрафов не найдено.")
 
-# /delete
 async def delete(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     with sqlite3.connect(DB_PATH) as conn:
         conn.execute("DELETE FROM users WHERE user_id=?", (user_id,))
     await update.message.reply_text("🗑️ Ваши данные удалены. Вы всегда можете начать заново с /start.")
 
-# Автоматическая проверка
 async def daily_check(app):
     while True:
         with sqlite3.connect(DB_PATH) as conn:
@@ -133,8 +123,12 @@ async def daily_check(app):
 
         await asyncio.sleep(86400)
 
-# Запуск бота
 if __name__ == '__main__':
+    if os.environ.get("BOT_RUNNING") == "1":
+        logger.error("❌ Уже запущен другой экземпляр бота. Завершаем работу.")
+        sys.exit(1)
+
+    os.environ["BOT_RUNNING"] = "1"
     init_db()
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
