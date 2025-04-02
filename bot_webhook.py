@@ -1,3 +1,7 @@
+from fastapi import FastAPI
 
-# Здесь должен быть финальный содержательный код bot_webhook.py
-# Мы пересоздадим его в отдельном шаге с полным содержимым
+app = FastAPI()
+
+@app.get("/")
+async def root():
+    return {"message": "Bot is running!"}
