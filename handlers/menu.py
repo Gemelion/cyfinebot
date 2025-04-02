@@ -1,10 +1,13 @@
 from telegram import Update
-from telegram.ext import ContextTypes, CommandHandler
+from telegram.ext import ContextTypes
 
-async def menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("📋 Меню:
-/profile — Просмотр данных
-/delete — Удалить данные")
+async def menu_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    await update.message.reply_text(
+        """📋 Меню:
 
-def register_menu_handlers(app):
-    app.add_handler(CommandHandler("menu", menu))
+Выберите действие:
+- 📝 Регистрация
+- 📷 Проверка штрафов
+- ⚙️ Настройки
+- ℹ️ GDPR и контакты"""
+    )
