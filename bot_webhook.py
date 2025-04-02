@@ -1,25 +1,23 @@
 import os
 import logging
-import asyncio
 from fastapi import FastAPI, Request
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 
-# Инициализация логирования
+# Логирование
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("bot_webhook")
 
-# Получение токена и вебхука из переменных окружения
+# Переменные окружения
 TOKEN = os.getenv("BOT_TOKEN")
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 WEBHOOK_PATH = f"/webhook/{TOKEN}"
 FULL_WEBHOOK_URL = WEBHOOK_URL + WEBHOOK_PATH
 
-# Инициализация Telegram и FastAPI
+# Инициализация
 bot_app = Application.builder().token(TOKEN).build()
 app = FastAPI()
 
-# Вебхук FastAPI
 @app.post(WEBHOOK_PATH)
 async def telegram_webhook(req: Request):
     data = await req.json()
@@ -29,10 +27,11 @@ async def telegram_webhook(req: Request):
 
 @app.on_event("startup")
 async def on_startup():
+    await bot_app.initialize()  # <-- Важно!
     await bot_app.bot.set_webhook(FULL_WEBHOOK_URL)
     logger.info("🚀 Вебхук установлен и бот запущен!")
 
-# Команды Telegram
+# Команды
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "👋 Привет! Я бот для проверки штрафов на Кипре. "
@@ -60,6 +59,5 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE):
         parse_mode="Markdown"
     )
 
-# Регистрируем команды
 bot_app.add_handler(CommandHandler("start", start))
 bot_app.add_handler(CommandHandler("info", info))
