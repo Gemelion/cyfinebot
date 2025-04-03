@@ -1,15 +1,18 @@
-import os
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from telegram import Update
+from telegram.ext import Application
 from bot import get_bot_application
+import os
 
 app = FastAPI()
-bot_app = get_bot_application(os.getenv("BOT_TOKEN"))
+bot_app: Application = get_bot_application(os.getenv("BOT_TOKEN"))
 
-@app.on_event("startup")
-async def on_startup():
-    await bot_app.initialize()
-    await bot_app.start()
+@app.post("/webhook/{token}")
+async def telegram_webhook(request: Request, token: str):
+    if token != os.getenv("BOT_TOKEN"):
+        return {"error": "Unauthorized"}
 
-@app.on_event("shutdown")
-async def on_shutdown():
-    await bot_app.stop()
+    data = await request.json()
+    update = Update.de_json(data, bot_app.bot)
+    await bot_app.process_update(update)
+    return {"ok": True}
