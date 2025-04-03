@@ -1,7 +1,2 @@
+aiogram==3.*
 uvicorn
-fastapi
-python-telegram-bot[ext,webhooks]==20.7
-cryptography
-requests
-beautifulsoup4
-APScheduler
