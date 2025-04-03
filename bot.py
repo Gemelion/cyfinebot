@@ -1,17 +1,26 @@
 
-from aiogram import Bot, Dispatcher
-from aiogram.fsm.storage.memory import MemoryStorage
+from telegram import Update
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
+from handlers.start_handler import start_handler
+from handlers.fine_check_handler import fine_check_handler
+from handlers.gdpr_handler import gdpr_handler
+from handlers.admin_handler import admin_handler
+from handlers.register_handler import register_handler
+from handlers.view_data_handler import view_data_handler
+from handlers.delete_data_handler import delete_data_handler
+from handlers.feedback_handler import feedback_handler
 
-from handlers.start import start_handler
-from handlers.help import help_handler
-from handlers.feedback import feedback_handler
 
-def get_bot_application(token: str) -> Dispatcher:
-    bot = Bot(token=token, parse_mode="HTML")
-    dp = Dispatcher(storage=MemoryStorage())
+def get_bot_application(token: str):
+    application = ApplicationBuilder().token(token).build()
 
-    dp.include_router(start_handler)
-    dp.include_router(help_handler)
-    dp.include_router(feedback_handler)
+    application.add_handler(start_handler)
+    application.add_handler(register_handler)
+    application.add_handler(fine_check_handler)
+    application.add_handler(view_data_handler)
+    application.add_handler(delete_data_handler)
+    application.add_handler(feedback_handler)
+    application.add_handler(gdpr_handler)
+    application.add_handler(admin_handler)
 
-    return dp
+    return application
