@@ -1,23 +1,17 @@
-from telegram.ext import (
-    Application, CommandHandler, MessageHandler,
-    CallbackQueryHandler, ConversationHandler, filters
-)
-from handlers import (
-    start_handler, register_handler, view_data_handler,
-    delete_data_handler, feedback_handler, gdpr_handler,
-    menu_handler
-)
-from config import BOT_TOKEN
 
-def get_bot_application() -> Application:
-    app = Application.builder().token(BOT_TOKEN).build()
+from aiogram import Bot, Dispatcher
+from aiogram.fsm.storage.memory import MemoryStorage
 
-    app.add_handler(start_handler)
-    app.add_handler(register_handler)
-    app.add_handler(view_data_handler)
-    app.add_handler(delete_data_handler)
-    app.add_handler(feedback_handler)
-    app.add_handler(gdpr_handler)
-    app.add_handler(menu_handler)
+from handlers.start import start_handler
+from handlers.help import help_handler
+from handlers.feedback import feedback_handler
 
-    return app
+def get_bot_application(token: str) -> Dispatcher:
+    bot = Bot(token=token, parse_mode="HTML")
+    dp = Dispatcher(storage=MemoryStorage())
+
+    dp.include_router(start_handler)
+    dp.include_router(help_handler)
+    dp.include_router(feedback_handler)
+
+    return dp
