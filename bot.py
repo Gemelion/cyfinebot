@@ -1,8 +1,11 @@
-from telegram.ext import Application, CommandHandler
+from telegram.ext import (
+    Application,
+    ApplicationBuilder,
+)
 from handlers.start_handler import start_handler
-
+import os
 
 def get_bot_application(token: str) -> Application:
-    application = Application.builder().token(token).build()
-    application.add_handler(CommandHandler("start", start_handler))
+    application = ApplicationBuilder().token(token).build()
+    application.add_handler(start_handler)
     return application
