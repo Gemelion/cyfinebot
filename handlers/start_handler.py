@@ -1,24 +1,30 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ContextTypes, CommandHandler
-from db import add_user, user_exists
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    username = update.effective_user.username or "Unknown"
+from aiogram import types
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+from database import add_user_if_not_exists
 
-    if not user_exists(user_id):
-        add_user(user_id, username)
+from aiogram.handlers import MessageHandler
+from aiogram.fsm.context import FSMContext
 
-    keyboard = [
-        [InlineKeyboardButton("Проверить штрафы", callback_data="check_fines")]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
+start_handler = MessageHandler(
+    lambda msg: msg.text == "/start",
+    lambda message, state: handle_start(message, state),
+)
 
-    await update.message.reply_text(
+
+async def handle_start(message: types.Message, state: FSMContext):
+    user_id = message.from_user.id
+    full_name = message.from_user.full_name
+    username = message.from_user.username or ""
+
+    # Добавляем пользователя в базу, если его нет
+    add_user_if_not_exists(user_id, full_name, username)
+
+    builder = InlineKeyboardBuilder()
+    builder.button(text="🔎 Проверить штрафы", callback_data="check_fines")
+
+    await message.answer(
         "👋 Добро пожаловать в CyFineBot!
-
-С помощью этого бота вы можете проверять наличие штрафов по вашему автомобилю.",
-        reply_markup=reply_markup
+Пожалуйста, нажмите кнопку ниже.",
+        reply_markup=builder.as_markup()
     )
-
-start_handler = CommandHandler("start", start)
