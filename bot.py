@@ -1,20 +1,26 @@
-import asyncio
 import logging
-from telegram.ext import Application
-from bot_config import BOT_TOKEN
+import os
+from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import (
+    ApplicationBuilder,
+    ContextTypes,
+    CommandHandler,
+)
+
 from handlers.start_handler import start_handler
 from database import init_db
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
-def get_bot_application() -> Application:
-    application = Application.builder().token(BOT_TOKEN).build()
-    application.add_handler(start_handler)
+def get_bot_application():
+    application = ApplicationBuilder().token(BOT_TOKEN).build()
+
+    application.add_handler(CommandHandler("start", start_handler))
+
     return application
 
-# При запуске файла создаем БД
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     init_db()
     app = get_bot_application()
     app.run_polling()
