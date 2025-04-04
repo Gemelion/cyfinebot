@@ -1,30 +1,16 @@
-import sqlite3
+from datetime import datetime
 
-DB_NAME = "users.db"
+# Заглушка: в реальном приложении используем БД с шифрованием
+USERS_DB = {}
 
-def init_db():
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            telegram_id INTEGER NOT NULL UNIQUE
-        )
-    """)
-    conn.commit()
-    conn.close()
+async def add_user(user_id, username, first_name, consent_date: datetime):
+    USERS_DB[user_id] = {
+        "username": username,
+        "first_name": first_name,
+        "consent_date": consent_date,
+        "document": None,
+        "vehicles": []
+    }
 
-def add_user(telegram_id: int):
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute("INSERT OR IGNORE INTO users (telegram_id) VALUES (?)", (telegram_id,))
-    conn.commit()
-    conn.close()
-
-def user_exists(telegram_id: int) -> bool:
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute("SELECT 1 FROM users WHERE telegram_id = ?", (telegram_id,))
-    result = cursor.fetchone()
-    conn.close()
-    return result is not None
+async def user_exists(user_id) -> bool:
+    return user_id in USERS_DB

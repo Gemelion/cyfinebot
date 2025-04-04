@@ -1,21 +1,29 @@
-from aiogram import Router, types
+from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram import Router, F
 from aiogram.filters import CommandStart
-from aiogram.utils.keyboard import InlineKeyboardBuilder
-from database import add_user, user_exists
+from database import add_user
+from aiogram.types import CallbackQuery
 
 start_handler = Router()
 
 @start_handler.message(CommandStart())
-async def start(message: types.Message):
-    user_id = message.from_user.id
-    if not user_exists(user_id):
-        add_user(user_id)
+async def start_command_handler(message: Message):
+    add_user(message.from_user.id)
 
-    kb = InlineKeyboardBuilder()
-    kb.button(text="🔎 Проверить штрафы", callback_data="check_fines")
-    kb.adjust(1)
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Проверить штрафы", callback_data="check_fines")],
+        [InlineKeyboardButton(text="GDPR & Контакт", callback_data="gdpr_contact")]
+    ])
 
     await message.answer(
-        "👋 Добро пожаловать в CyFineBot!",
-        reply_markup=kb.as_markup()
+        text="👋 Добро пожаловать в CyFineBot!",
+        reply_markup=keyboard
     )
+
+@start_handler.callback_query(F.data == "check_fines")
+async def check_fines_callback(callback_query: CallbackQuery):
+    await callback_query.message.answer("Пожалуйста, введите ваш ARC/ID и номер автомобиля для проверки штрафов.")
+
+@start_handler.callback_query(F.data == "gdpr_contact")
+async def gdpr_contact_callback(callback_query: CallbackQuery):
+    await callback_query.message.answer("Информация о GDPR и возможность связаться с администратором.")
