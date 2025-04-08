@@ -1,17 +1,19 @@
 
-from aiogram import types
+from aiogram import Bot, types
+from aiogram.fsm import FSMContext
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from aiogram.dispatcher import Dispatcher
+from aiogram.utils import executor
+from aiogram import Dispatcher  # Нужно заменить этот импорт
 
-async def cmd_start(message: types.Message):
-    # Создаем кнопки
-    button1 = KeyboardButton("Проверить штрафы")
-    button2 = KeyboardButton("Мои данные")
-    button3 = KeyboardButton("Удалить мои данные")
+from bot_config import BOT_TOKEN
 
-    # Создаем клавиатуру
-    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(button1, button2, button3)
+bot = Bot(token=BOT_TOKEN)
 
-    # Отправляем сообщение с клавиатурой
-    await message.answer("Привет! Чем я могу помочь?", reply_markup=keyboard)
+# Новый импорт
+from aiogram.fsm.context import FSMContext
+from aiogram.dispatcher import AiogramDispatcher
+
+# Настройка диспетчера для 3.x
+dp = AiogramDispatcher(bot)
+
+# Далее идет код для работы с командами
