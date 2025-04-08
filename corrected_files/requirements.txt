@@ -1,0 +1,6 @@
+aiogram==3.*
+uvicorn
+fastapi
+python-telegram-bot==20.*
+python-dotenv
+
