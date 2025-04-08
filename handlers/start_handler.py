@@ -2,9 +2,10 @@
 from aiogram import Router
 from aiogram.types import Message
 from aiogram.filters import Command
+from aiogram import F
 
 router = Router()
 
-@router.message(filters.Command("start"))
-async def start(message: Message):
-    await message.answer("Привет! Как я могу помочь?")
+@router.message(Command("start"))
+async def cmd_start(message: Message):
+    await message.answer("Привет! Чем могу помочь?")
