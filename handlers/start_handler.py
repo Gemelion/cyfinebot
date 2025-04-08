@@ -1,11 +1,17 @@
 
-from aiogram import Router
-from aiogram.types import Message
-from aiogram.filters import Command
-from aiogram import F
+from aiogram import types
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.dispatcher import Dispatcher
 
-router = Router()
+async def cmd_start(message: types.Message):
+    # Создаем кнопки
+    button1 = KeyboardButton("Проверить штрафы")
+    button2 = KeyboardButton("Мои данные")
+    button3 = KeyboardButton("Удалить мои данные")
 
-@router.message(Command("start"))
-async def cmd_start(message: Message):
-    await message.answer("Привет! Чем могу помочь?")
+    # Создаем клавиатуру
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(button1, button2, button3)
+
+    # Отправляем сообщение с клавиатурой
+    await message.answer("Привет! Чем я могу помочь?", reply_markup=keyboard)
