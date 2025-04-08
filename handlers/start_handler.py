@@ -1,19 +1,8 @@
 
-from aiogram import Bot, types
-from aiogram.fsm.context import FSMContext
+from aiogram import types
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from aiogram.utils import executor
-from aiogram import Dispatcher  # Нужно заменить этот импорт
 
-from bot_config import BOT_TOKEN
-
-bot = Bot(token=BOT_TOKEN)
-
-# Новый импорт
-from aiogram.fsm.context import FSMContext
-from aiogram.dispatcher import AiogramDispatcher
-
-# Настройка диспетчера для 3.x
-dp = AiogramDispatcher(bot)
-
-# Далее идет код для работы с командами
+# Function to handle the command start
+async def cmd_start(message: types.Message):
+    # Send greeting and ask for GDPR consent
+    await send_welcome(message)
