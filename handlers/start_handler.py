@@ -1,6 +1,6 @@
 
 from aiogram import Bot, types
-from aiogram.fsm import FSMContext
+from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils import executor
 from aiogram import Dispatcher  # Нужно заменить этот импорт
