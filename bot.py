@@ -1,20 +1,19 @@
 
-from aiogram import Bot, Dispatcher
-from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
+from aiogram import Bot, Dispatcher, types
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils import executor
-from bot_config import BOT_TOKEN
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
-from aiogram.types import ParseMode
-from aiogram import types
 
+API_TOKEN = 'your-telegram-bot-token'
 
-bot = Bot(token=BOT_TOKEN)
+bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
+
 dp.middleware.setup(LoggingMiddleware())
 
-# Сообщение приветствия
-@dp.message_handler(commands=["start"])
-async def cmd_start(message: Message):
+# Start command handler
+@dp.message_handler(commands=['start'])
+async def cmd_start(message: types.Message):
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     button1 = KeyboardButton("✅ Согласен")
     button2 = KeyboardButton("❌ Не согласен")
@@ -36,13 +35,9 @@ async def cmd_start(message: Message):
         "🛡️ Все данные хранятся только на сервере, в зашифрованном виде.
 
 "
-        "❗Перед началом работы необходимо ваше согласие на обработку данных.
-
-"
-        "👉 Ниже отображаются inline-кнопки:",
+        "❗Перед началом работы необходимо ваше согласие на обработку данных.",
         reply_markup=keyboard
     )
 
-# Ожидаем команды
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
