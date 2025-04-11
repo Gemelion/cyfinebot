@@ -1,47 +1,45 @@
-
+from aiogram import Bot, Dispatcher, types
+import logging
 import os
-from aiogram import Bot, Dispatcher
-from aiogram.types import Message
-from aiogram.utils import executor
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from dotenv import load_dotenv
 
-# Загрузка токена из переменной окружения
-API_TOKEN = os.getenv("API_TOKEN")
+load_dotenv()  # Load environment variables from .env file
 
-if API_TOKEN is None:
-    raise ValueError("API_TOKEN is not set in the environment variables!")
+API_TOKEN = os.getenv("API_TOKEN")  # Getting the API token from environment variables
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
-# Обработчик команды /start
-@dp.message_handler(commands=['start'])
-async def cmd_start(message: Message):
-    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    button1 = KeyboardButton('✅ Согласен')
-    button2 = KeyboardButton('❌ Не согласен')
-    keyboard.add(button1, button2)
-    
+logging.basicConfig(level=logging.INFO)
+
+# Command /start
+@dp.message_handler(commands=["start"])
+async def cmd_start(message: types.Message):
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    button = types.KeyboardButton("✅ Согласен")
+    button2 = types.KeyboardButton("❌ Не согласен")
+    keyboard.add(button, button2)
     await message.answer(
         "👋 Добро пожаловать в CyFineBot — ваш помощник по проверке автомобильных штрафов с камер на Кипре.
-
 "
-        "📍Что делает бот:
+        "📍 Что делает бот:
 "
         "— Проверяет наличие штрафов по данным вашего ARC/ID (или другого документа) и номеру автомобиля.
 "
         "— Проверяет штрафы на сайте раз в сутки и при появлении новых штрафов уведомляет вас.
 "
         "— Не собирает лишних данных и полностью соответствует требованиям GDPR.
-
 "
         "🛡️ Все данные хранятся только на сервере, в зашифрованном виде.
 
 "
-        "❗Перед началом работы необходимо ваше согласие на обработку данных.",
-        reply_markup=keyboard
-    )
+        "❗Перед началом работы необходимо ваше согласие на обработку данных.
 
-if __name__ == '__main__':
-    from aiogram import executor
-    executor.start_polling(dp)
+"
+        "👉 Ниже отображаются inline-кнопки:
+"
+        "• ✅ Согласен
+"
+        "• ❌ Не согласен",
+        reply_markup=keyboard,
+    )
