@@ -3,19 +3,23 @@ name: Deploy to Render
 on:
   push:
     branches:
-      - main  # или любая другая ветка, с которой вы хотите деплоить
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Check out code
+      - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.11
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
@@ -23,5 +27,11 @@ jobs:
           pip install -r requirements.txt
 
       - name: Deploy to Render
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
         run: |
-          curl -X POST https://api.render.com/deploy/some-unique-id # Тут вам нужно заменить на ваш web hook для Render
+          curl -X POST \
+          -H "Authorization: Bearer $RENDER_API_KEY" \
+          -H "Content-Type: application/json" \
+          -d '{"service_id":"<your_render_service_id>"}' \
+          https://api.render.com/v1/services/<your_render_service_id>/deploy
